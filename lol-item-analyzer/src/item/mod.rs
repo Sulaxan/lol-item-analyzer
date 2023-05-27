@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-pub mod loader;
+pub mod transformer;
 
-#[derive(Serialize, Deserialize)]
-struct Rune {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Rune {
     #[serde(rename = "isrune")]
     is_rune: bool,
     tier: u32,
@@ -13,16 +13,16 @@ struct Rune {
     rune_type: String,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Gold {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Gold {
     base: u32,
     total: u32,
     sell: u32,
     purchasable: bool,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Image {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Image {
     full: String,
     sprite: String,
     group: String,
@@ -40,10 +40,10 @@ type ItemIds = Vec<u32>;
 
 type Tags = Vec<String>;
 
-#[derive(Serialize, Deserialize)]
-struct Item {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Item {
     name: String,
-    rune: Rune,
+    rune: Rune, // maybe nullable? replace with Option<Rune>
     gold: Gold,
     group: String,
     description: String,
@@ -71,4 +71,20 @@ struct Item {
     stas: Stats,
     tags: Tags,
     maps: Maps,
+
+    // Custom fields (not give by the LoL API, but computed later on)
+    /// Whether this is an Ornn item
+    #[serde(skip_deserializing)]
+    is_masterwork: bool,
+    /// The base item id if this is a masterwork item
+    #[serde(skip_deserializing)]
+    masterwork_from: String,
+    /// The masterwork item id if this the base item
+    #[serde(skip_deserializing)]
+    masterwork_into: String,
+    #[serde(skip_deserializing)]
+    gold_value: f64,
+    /// The value given by the Ornn item
+    #[serde(skip_deserializing)]
+    masterwork_additional_gold_value: f64,
 }
