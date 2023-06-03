@@ -1,36 +1,76 @@
-use async_trait::async_trait;
-use serde::Deserialize;
+use std::collections::HashMap;
 
-use crate::util;
+use serde_json::Value;
 
-use super::{Reader, LOL_ITEMS_KEY};
+use crate::item::Item;
 
-const LEAGUE_CDN_URL: &str = "http://ddragon.leagueoflegends.com/cdn/";
-const LEAGUE_ITEM_ENDPOINT: &str = "/data/en_US/item.json";
+const LEAGUE_API_URL: &str = "https://ddragon.leagueoflegends.com/api";
+const LEAGUE_CDN_URL: &str = "http://ddragon.leagueoflegends.com/cdn";
+const LEAGUE_API_VERSIONS_ENDPOINT: &str = "/versions.json";
+const LEAGUE_CDN_ITEM_ENDPOINT: &str = "/data/en_US/item.json";
+const ITEMS_DATA_KEY: &str = "data";
 
-pub struct LolApiReader;
+pub struct LolApi;
 
-#[async_trait()]
-impl Reader for LolApiReader {
-    async fn read<'a, T: Deserialize<'a>>(key: &str) -> Result<T, String> {
-        match key {
-            LOL_ITEMS_KEY => {
-                let version = util::league_version::get_all_versions()
-                    .await
-                    .map_err(|e| format!("Could not get League versions: {}", e))?;
-                let url = format!("{}{}{}", LEAGUE_CDN_URL, version[0], LEAGUE_ITEM_ENDPOINT);
+impl LolApi {
+    /// Obtains all valid League of Legends versions from the League API.
+    pub async fn get_all_versions() -> Result<Vec<String>, String> {
+        let response = reqwest::get(format!("{}{}", LEAGUE_API_URL, LEAGUE_API_VERSIONS_ENDPOINT))
+            .await
+            .map_err(|e| format!("Error with response: {}", e))?
+            .text()
+            .await
+            .map_err(|e| format!("Could not get text: {}", e))?;
 
-                let response = reqwest::get(url)
-                    .await
-                    .map_err(|e| format!("Error fetching from URL: {}", e))?
-                    .text()
-                    .await
-                    .map_err(|e| format!("Error obtaining request body: {}", e))?;
+        serde_json::from_str(response.as_str()).map_err(|e| format!("Error while parsing JSON string: {}", e))
+    }
 
-                //TODO: fix borrow lifetime error here
-                serde_json::from_str(response.as_str()).map_err(|e| format!("Error parsing request body: {}", e))
-            }
-            _ => Err("Unrecognized key".to_string()),
-        }
+    /// Obtains all items from the League of Legends CDN. Returned result is a map of item IDs
+    /// mapped to Item structs.
+    pub async fn get_items() -> Result<HashMap<String, Item>, String> {
+        let versions = Self::get_all_versions()
+            .await
+            .map_err(|e| format!("Could not get League versions: {}", e))?;
+        let latest_version = versions.get(0).ok_or("No League versions available")?;
+
+        let url = format!("{}/{}{}", LEAGUE_CDN_URL, latest_version, LEAGUE_CDN_ITEM_ENDPOINT);
+
+        let response = reqwest::get(url)
+            .await
+            .map_err(|e| format!("Error fetching from URL: {}", e))?
+            .text()
+            .await
+            .map_err(|e| format!("Error obtaining request body: {}", e))?;
+
+        let items: HashMap<String, Value> = serde_json::from_str(response.as_str())
+            .map_err(|e| format!("Error parsing request body: {}", e))?;
+        let data = items.get(ITEMS_DATA_KEY).ok_or("No data in items response")?.to_owned();
+        let items: HashMap<String, Item> = serde_json::from_value(data).map_err(|e| format!("Could not parse items: {}", e))?;
+
+        Ok(items)
     }
 }
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn get_all_versions_works() {
+        let result = LolApi::get_all_versions().await.unwrap();
+
+        assert_ne!(result.len(), 0, "Result is empty list");
+
+        println!("{:#?}", result);
+    }
+
+    #[tokio::test]
+    async fn get_items_works() {
+        let result = LolApi::get_items().await.unwrap();
+
+        assert_ne!(result.len(), 0, "Result is empty list");
+
+        println!("{:#?}", result);
+    }
+}
+

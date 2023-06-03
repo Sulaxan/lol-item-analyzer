@@ -32,43 +32,43 @@ pub struct Image {
     h: u32,
 }
 
-type Stats = HashMap<String, u32>;
+type Stats = HashMap<String, f64>;
 
 type Maps = HashMap<String, bool>;
 
-type ItemIds = Vec<u32>;
+type ItemIds = Vec<String>;
 
 type Tags = Vec<String>;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Item {
     name: String,
-    rune: Rune, // maybe nullable? replace with Option<Rune>
+    rune: Option<Rune>,
     gold: Gold,
-    group: String,
+    group: Option<String>,
     description: String,
     colloq: String,
     #[serde(rename = "plaintext")]
     plain_text: String,
-    consumed: bool,
-    stacks: u32,
-    depth: u32,
+    consumed: Option<bool>,
+    stacks: Option<u32>,
+    depth: Option<u32>,
     #[serde(rename = "consumeOnFull")]
-    consume_on_full: bool,
-    from: ItemIds,
-    into: ItemIds,
+    consume_on_full: Option<bool>,
+    from: Option<ItemIds>,
+    into: Option<ItemIds>,
     image: Image,
     #[serde(rename = "specialRecipe")]
-    special_recipe: u32,
+    special_recipe: Option<u32>,
     #[serde(rename = "inStore")]
-    in_store: bool,
+    in_store: Option<bool>,
     #[serde(rename = "hideFromAll")]
-    hide_from_all: bool,
+    hide_from_all: Option<bool>,
     #[serde(rename = "requiredChampion")]
-    required_champion: String,
+    required_champion: Option<String>,
     #[serde(rename = "requiredAlly")]
-    required_ally: String,
-    stas: Stats,
+    required_ally: Option<String>,
+    stats: Stats,
     tags: Tags,
     maps: Maps,
 

@@ -1,11 +1,13 @@
+use std::collections::HashMap;
+
 use super::Item;
 
 pub struct TransformContext {
-    pub items: Vec<Item>,
+    pub items: HashMap<String, Item>,
 }
 
 impl TransformContext {
-    pub fn new(items: Vec<Item>) -> Self {
+    pub fn new(items: HashMap<String, Item>) -> Self {
         TransformContext { items }
     }
 }
@@ -16,7 +18,7 @@ pub struct TransformHandler {
 }
 
 impl TransformHandler {
-    pub fn new(items: Vec<Item>, transformers: Vec<Box<dyn Transformer>>) -> Self {
+    pub fn new(items: HashMap<String, Item>, transformers: Vec<Box<dyn Transformer>>) -> Self {
         TransformHandler {
             ctx: TransformContext::new(items),
             transformers,
@@ -25,7 +27,7 @@ impl TransformHandler {
 
     /// Transforms all items using all transforms, returning a new vector of items. Transforms are
     /// applied one-by-one, in the given order, on all items, before the next transform is applied.
-    pub fn transform_all(&self) -> Vec<Item> {
+    pub fn transform_all(&self) -> HashMap<String, Item> {
         todo!()
     }
 }
