@@ -42,6 +42,10 @@ type Tags = Vec<String>;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Item {
+    // id needs to be added in manually, since the item object in the API response does not contain
+    // the id directly in the object, but rather is contained in the map of all the items.
+    #[serde(skip_deserializing)]
+    id: String,
     name: String,
     rune: Option<Rune>,
     gold: Gold,
@@ -72,16 +76,16 @@ pub struct Item {
     tags: Tags,
     maps: Maps,
 
-    // Custom fields (not give by the LoL API, but computed later on)
+    // Custom fields (not given by the LoL API, but computed later on)
     /// Whether this is an Ornn item
     #[serde(skip_deserializing)]
     is_masterwork: bool,
     /// The base item id if this is a masterwork item
     #[serde(skip_deserializing)]
     masterwork_from: String,
-    /// The masterwork item id if this the base item
+    /// The masterwork item id if this is the base item (assuming it is mythic)
     #[serde(skip_deserializing)]
-    masterwork_into: String,
+    masterwork_into: Option<String>,
     #[serde(skip_deserializing)]
     gold_value: f64,
     /// The value given by the Ornn item
