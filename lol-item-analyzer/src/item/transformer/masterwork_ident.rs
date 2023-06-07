@@ -6,8 +6,8 @@ use super::{Transformer, TransformContext};
 struct MasterworkIdentifierTransformer;
 
 impl Transformer for MasterworkIdentifierTransformer {
-    fn transform(&self, ctx: &TransformContext, item: Item) -> Item {
-        item.is_masterwork = item.required_ally == "Ornn";
-        item
+    fn transform(&self, _ctx: &mut TransformContext, item: &mut Item) {
+        let is_masterwork = item.required_ally.is_some() && item.required_ally.as_ref().unwrap() == "Ornn";
+        item.is_masterwork = is_masterwork;
     }
 }

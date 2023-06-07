@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 pub mod transformer;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rune {
     #[serde(rename = "isrune")]
     is_rune: bool,
@@ -13,7 +13,7 @@ pub struct Rune {
     rune_type: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Gold {
     base: u32,
     total: u32,
@@ -21,7 +21,7 @@ pub struct Gold {
     purchasable: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Image {
     full: String,
     sprite: String,
@@ -40,7 +40,7 @@ type ItemIds = Vec<String>;
 
 type Tags = Vec<String>;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Item {
     // id needs to be added in manually, since the item object in the API response does not contain
     // the id directly in the object, but rather is contained in the map of all the items.
