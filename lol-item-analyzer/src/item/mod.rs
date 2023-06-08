@@ -82,7 +82,7 @@ pub struct Item {
     is_masterwork: bool,
     /// The base item id if this is a masterwork item
     #[serde(skip_deserializing)]
-    masterwork_from: String,
+    masterwork_from: Option<String>,
     /// The masterwork item id if this is the base item (assuming it is mythic)
     #[serde(skip_deserializing)]
     masterwork_into: Option<String>,

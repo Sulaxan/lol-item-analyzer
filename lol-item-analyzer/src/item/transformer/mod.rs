@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap};
+use std::collections::HashMap;
 
 use super::Item;
 
@@ -12,10 +12,6 @@ pub struct TransformContext {
 
 impl TransformContext {
     pub fn new(items: HashMap<String, Item>) -> Self {
-        // let mut new_items = HashMap::new();
-        // items.drain().for_each(|(id, item)| {
-        //     new_items.insert(id, RefCell::new(item)));
-        // });
         TransformContext { items }
     }
 }
@@ -47,19 +43,11 @@ impl TransformHandler {
 
         let mut ctx = TransformContext::new(new_items);
 
-        &self
-            .init_transformers
+        self.init_transformers
             .iter()
             .for_each(|t| t.transform(&mut ctx));
 
-        //TODO: figure out a way to clone the keys and release the borrow
-        let item_keys = ctx.items.keys().clone();
-
-        &self.transformers.iter().for_each(|t| {
-            item_keys.for_each(|id| {
-                t.transform(&mut ctx, ctx.items.get_mut(id.as_str()).unwrap()); // should be safe unwrap
-            });
-        });
+        self.transformers.iter().for_each(|t| t.transform(&mut ctx));
 
         ctx.items
     }
@@ -72,7 +60,7 @@ pub trait InitTransformer {
 
 pub trait Transformer {
     /// Transforms a given item into the new item.
-    fn transform(&self, ctx: &mut TransformContext, item: &mut Item);
+    fn transform(&self, ctx: &mut TransformContext);
 }
 
 #[cfg(test)]
