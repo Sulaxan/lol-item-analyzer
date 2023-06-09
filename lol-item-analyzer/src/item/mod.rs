@@ -92,3 +92,51 @@ pub struct Item {
     #[serde(skip_deserializing)]
     masterwork_additional_gold_value: f64,
 }
+
+impl Default for Item {
+    fn default() -> Self {
+        Item {
+            id: "0000".to_string(),
+            name: "name".to_string(),
+            rune: None,
+            gold: Gold {
+                base: 0,
+                total: 0,
+                sell: 0,
+                purchasable: false,
+            },
+            group: None,
+            description: "description".to_string(),
+            colloq: ";".to_string(),
+            plain_text: "".to_string(),
+            consumed: None,
+            stacks: None,
+            depth: None,
+            consume_on_full: None,
+            from: None,
+            into: None,
+            image: Image {
+                full: "".to_string(),
+                sprite: "".to_string(),
+                group: "".to_string(),
+                x: 0,
+                y: 0,
+                w: 0,
+                h: 0,
+            },
+            special_recipe: None,
+            in_store: None,
+            hide_from_all: None,
+            required_champion: None,
+            required_ally: None,
+            stats: Stats::new(),
+            tags: Tags::new(),
+            maps: Maps::new(),
+            is_masterwork: false,
+            masterwork_from: None,
+            masterwork_into: None,
+            gold_value: 0f64,
+            masterwork_additional_gold_value: 0f64,
+        }
+    }
+}

@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use mockall::automock;
+
 use super::Item;
 
 pub mod id_assoc;
@@ -37,7 +39,7 @@ impl TransformHandler {
 
     /// Transforms all items using all transforms, returning a new vector of items. Transforms are
     /// applied one-by-one, in the given order, on all items, before the next transform is applied.
-    pub fn transform_all(&mut self) -> HashMap<String, Item> {
+    pub fn transform_all(&self) -> HashMap<String, Item> {
         let mut new_items = HashMap::new();
         new_items.clone_from(&self.items);
 
@@ -54,10 +56,12 @@ impl TransformHandler {
 }
 
 /// Perform initial transformation on all items.
+#[automock]
 pub trait InitTransformer {
     fn transform(&self, ctx: &mut TransformContext);
 }
 
+#[automock]
 pub trait Transformer {
     /// Transforms a given item into the new item.
     fn transform(&self, ctx: &mut TransformContext);
@@ -67,5 +71,22 @@ pub trait Transformer {
 mod tests {
     use super::*;
 
-    fn transform_all_works() {}
+    #[test]
+    fn transform_all_works() {
+        let mut items = HashMap::new();
+        items.insert("0000-test".to_string(), Item::default());
+
+        let mut mock_init_transformer = MockInitTransformer::new();
+        let mut mock_transformer = MockTransformer::new();
+
+        let transform_handler = TransformHandler::new(
+            items,
+            vec![Box::new(mock_init_transformer)],
+            vec![Box::new(mock_transformer)],
+        );
+
+        transform_handler.transform_all();
+
+        // transform_handler.init_transformers.get(0);
+    }
 }
