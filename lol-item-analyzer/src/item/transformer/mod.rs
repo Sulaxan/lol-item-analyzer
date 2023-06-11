@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use mockall::automock;
 
@@ -20,15 +20,15 @@ impl TransformContext {
 
 pub struct TransformHandler {
     pub items: HashMap<String, Item>,
-    pub init_transformers: Vec<Box<dyn InitTransformer>>,
-    pub transformers: Vec<Box<dyn Transformer>>,
+    pub init_transformers: Vec<Rc<RefCell<dyn InitTransformer>>>,
+    pub transformers: Vec<Rc<RefCell<dyn Transformer>>>,
 }
 
 impl TransformHandler {
     pub fn new(
         items: HashMap<String, Item>,
-        init_transformers: Vec<Box<dyn InitTransformer>>,
-        transformers: Vec<Box<dyn Transformer>>,
+        init_transformers: Vec<Rc<RefCell<dyn InitTransformer>>>,
+        transformers: Vec<Rc<RefCell<dyn Transformer>>>,
     ) -> Self {
         TransformHandler {
             items,
@@ -47,9 +47,11 @@ impl TransformHandler {
 
         self.init_transformers
             .iter()
-            .for_each(|t| t.transform(&mut ctx));
+            .for_each(|t| t.borrow_mut().transform(&mut ctx));
 
-        self.transformers.iter().for_each(|t| t.transform(&mut ctx));
+        self.transformers
+            .iter()
+            .for_each(|t| t.borrow_mut().transform(&mut ctx));
 
         ctx.items
     }
@@ -69,6 +71,8 @@ pub trait Transformer {
 
 #[cfg(test)]
 mod tests {
+    use mockall::predicate;
+
     use super::*;
 
     #[test]
@@ -76,17 +80,28 @@ mod tests {
         let mut items = HashMap::new();
         items.insert("0000-test".to_string(), Item::default());
 
-        let mut mock_init_transformer = MockInitTransformer::new();
-        let mut mock_transformer = MockTransformer::new();
+        let mock_init_transformer = Rc::new(RefCell::new(MockInitTransformer::new()));
+        let mock_transformer = Rc::new(RefCell::new(MockTransformer::new()));
 
         let transform_handler = TransformHandler::new(
             items,
-            vec![Box::new(mock_init_transformer)],
-            vec![Box::new(mock_transformer)],
+            vec![mock_init_transformer.clone()],
+            vec![mock_transformer.clone()],
         );
 
-        transform_handler.transform_all();
+        mock_init_transformer
+            .borrow_mut()
+            .expect_transform()
+            .with(predicate::always())
+            .once()
+            .returning(|_ctx| {});
+        mock_transformer
+            .borrow_mut()
+            .expect_transform()
+            .with(predicate::always())
+            .once()
+            .returning(|_ctx| {});
 
-        // transform_handler.init_transformers.get(0);
+        transform_handler.transform_all();
     }
 }
