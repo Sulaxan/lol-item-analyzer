@@ -15,25 +15,32 @@ pub struct LolApi;
 impl LolApi {
     /// Obtains all valid League of Legends versions from the League API.
     pub async fn get_all_versions() -> Result<Vec<String>, String> {
-        let response = reqwest::get(format!("{}{}", LEAGUE_API_URL, LEAGUE_API_VERSIONS_ENDPOINT))
-            .await
-            .map_err(|e| format!("Error with response: {}", e))?
-            .text()
-            .await
-            .map_err(|e| format!("Could not get text: {}", e))?;
+        let response = reqwest::get(format!(
+            "{}{}",
+            LEAGUE_API_URL, LEAGUE_API_VERSIONS_ENDPOINT
+        ))
+        .await
+        .map_err(|e| format!("Error with response: {}", e))?
+        .text()
+        .await
+        .map_err(|e| format!("Could not get text: {}", e))?;
 
-        serde_json::from_str(response.as_str()).map_err(|e| format!("Error while parsing JSON string: {}", e))
+        serde_json::from_str(response.as_str())
+            .map_err(|e| format!("Error while parsing JSON string: {}", e))
     }
 
-    /// Obtains all items from the League of Legends CDN. Returned result is a map of item IDs
-    /// mapped to Item structs.
-    pub async fn get_items() -> Result<HashMap<String, Item>, String> {
+    /// Obtains all items from the League of Legneds CDN. This produces the raw content containing
+    /// extra metadata.
+    pub async fn get_raw_items() -> Result<HashMap<String, Value>, String> {
         let versions = Self::get_all_versions()
             .await
             .map_err(|e| format!("Could not get League versions: {}", e))?;
         let latest_version = versions.get(0).ok_or("No League versions available")?;
 
-        let url = format!("{}/{}{}", LEAGUE_CDN_URL, latest_version, LEAGUE_CDN_ITEM_ENDPOINT);
+        let url = format!(
+            "{}/{}{}",
+            LEAGUE_CDN_URL, latest_version, LEAGUE_CDN_ITEM_ENDPOINT
+        );
 
         let response = reqwest::get(url)
             .await
@@ -42,10 +49,23 @@ impl LolApi {
             .await
             .map_err(|e| format!("Error obtaining request body: {}", e))?;
 
-        let items: HashMap<String, Value> = serde_json::from_str(response.as_str())
+        let raw_items: HashMap<String, Value> = serde_json::from_str(response.as_str())
             .map_err(|e| format!("Error parsing request body: {}", e))?;
-        let data = items.get(ITEMS_DATA_KEY).ok_or("No data in items response")?.to_owned();
-        let items: HashMap<String, Item> = serde_json::from_value(data).map_err(|e| format!("Could not parse items: {}", e))?;
+
+        Ok(raw_items)
+    }
+
+    /// Obtains all items from the League of Legends CDN. Returned result is a map of item IDs
+    /// mapped to Item structs.
+    pub async fn get_items() -> Result<HashMap<String, Item>, String> {
+        let raw_items = LolApi::get_raw_items().await?;
+
+        let data = raw_items
+            .get(ITEMS_DATA_KEY)
+            .ok_or("No data in items response")?
+            .to_owned();
+        let items: HashMap<String, Item> =
+            serde_json::from_value(data).map_err(|e| format!("Could not parse items: {}", e))?;
 
         Ok(items)
     }
@@ -73,4 +93,3 @@ pub mod tests {
         println!("{:#?}", result);
     }
 }
-

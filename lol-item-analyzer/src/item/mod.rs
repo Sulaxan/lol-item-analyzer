@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 pub mod transformer;
+pub mod compute;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rune {
