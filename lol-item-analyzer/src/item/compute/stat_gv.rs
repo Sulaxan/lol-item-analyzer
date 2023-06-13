@@ -46,6 +46,11 @@ impl StatGVTableComputer {
         self
     }
 
+    pub fn add_compute_stat(&mut self, stat: &str) -> &mut Self {
+        self.compute_stats.push(stat.to_owned());
+        self
+    }
+
     pub fn compute(&mut self) {
         for stat in self.compute_stats.iter() {
             let entry = if let Some(override_fn) = self.override_fns.get(stat) {
@@ -59,9 +64,9 @@ impl StatGVTableComputer {
     }
 
     fn compute_entry(&self, stat: &str) -> StatGVTableEntry {
-        let mut lowest_value_item_id = ""; // the lowest value item id containing the stat
+        let mut lowest_value_item_id = "".to_owned(); // the lowest value item id containing the stat
         let mut lowest_value_item_cost = 0; // the cost of the above
-        let mut lowest_value_item_modifier = 0; // the value of the stat the above item gives
+        let mut lowest_value_item_modifier = 0f64; // the value of the stat the above item gives
 
         self.items.borrow().iter().for_each(|(id, item)| {
             if let Some(value) = item.stats.get(stat) {
@@ -78,10 +83,9 @@ impl StatGVTableComputer {
                 // * note: there may be some inaccuracies with this, but this way of computing stat
                 // gold value should work for most stats
                 if item.gold.purchasable && item.gold.base < lowest_value_item_cost {
-                    lowest_value_item_id = id;
+                    lowest_value_item_id = id.to_owned();
                     lowest_value_item_cost = item.gold.base;
-                    // lowest_value_item_modifier = value.to_owned(); // todo: fix to use owned f64
-                    // instead of &f64
+                    lowest_value_item_modifier = value.to_owned();
                 }
             }
         });
@@ -91,16 +95,13 @@ impl StatGVTableComputer {
                 unit_value: 0f64,
                 computed_from_item_id: "n/a".to_owned(),
                 notes: vec!["Could not associate stat to any item".to_string()],
-            };
+            }
         } else {
-            // todo: fix types
-            // StatGVTableEntry {
-            //     unit_value: lowest_value_item_modifier / lowest_value_item_cost,
-            //     computed_from_item_id: lowest_value_item_id.to_owned(),
-            //     notes: Vec::new()
-            // }
+            StatGVTableEntry {
+                unit_value: lowest_value_item_modifier / (lowest_value_item_cost as f64),
+                computed_from_item_id: lowest_value_item_id.to_owned(),
+                notes: Vec::new(),
+            }
         }
-
-        todo!();
     }
 }

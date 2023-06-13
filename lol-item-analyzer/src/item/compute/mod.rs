@@ -1,1 +1,1 @@
-pub mod gold_value;
+pub mod stat_gv;
