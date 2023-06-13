@@ -29,17 +29,21 @@ impl LolApi {
             .map_err(|e| format!("Error while parsing JSON string: {}", e))
     }
 
-    /// Obtains all items from the League of Legneds CDN. This produces the raw content containing
-    /// extra metadata.
-    pub async fn get_raw_items() -> Result<HashMap<String, Value>, String> {
-        let versions = Self::get_all_versions()
-            .await
-            .map_err(|e| format!("Could not get League versions: {}", e))?;
-        let latest_version = versions.get(0).ok_or("No League versions available")?;
+    /// Obtains the latest League of Legends version.
+    pub async fn get_latest_version() -> Result<String, String> {
+        LolApi::get_all_versions()
+            .await?
+            .get(0)
+            .cloned()
+            .ok_or("No versions available".to_owned())
+    }
 
+    /// Obtains all items from the League of Legends CDN. This produces the raw content containing
+    /// extra metadata.
+    pub async fn get_raw_items(version: &str) -> Result<HashMap<String, Value>, String> {
         let url = format!(
             "{}/{}{}",
-            LEAGUE_CDN_URL, latest_version, LEAGUE_CDN_ITEM_ENDPOINT
+            LEAGUE_CDN_URL, version, LEAGUE_CDN_ITEM_ENDPOINT
         );
 
         let response = reqwest::get(url)
@@ -57,8 +61,8 @@ impl LolApi {
 
     /// Obtains all items from the League of Legends CDN. Returned result is a map of item IDs
     /// mapped to Item structs.
-    pub async fn get_items() -> Result<HashMap<String, Item>, String> {
-        let raw_items = LolApi::get_raw_items().await?;
+    pub async fn get_items(version: &str) -> Result<HashMap<String, Item>, String> {
+        let raw_items = LolApi::get_raw_items(version).await?;
 
         let data = raw_items
             .get(ITEMS_DATA_KEY)
@@ -86,7 +90,8 @@ pub mod tests {
 
     #[tokio::test]
     async fn get_items_works() {
-        let result = LolApi::get_items().await.unwrap();
+        let latest_version = LolApi::get_latest_version().await.unwrap();
+        let result = LolApi::get_items(latest_version.as_str()).await.unwrap();
 
         assert_ne!(result.len(), 0, "Result is empty list");
 

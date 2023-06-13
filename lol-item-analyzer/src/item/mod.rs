@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 pub mod transformer;
 pub mod compute;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Rune {
     #[serde(rename = "isrune")]
     is_rune: bool,
@@ -14,7 +14,7 @@ pub struct Rune {
     rune_type: String,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Gold {
     base: u32,
     total: u32,
@@ -22,7 +22,7 @@ pub struct Gold {
     purchasable: bool,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Image {
     full: String,
     sprite: String,
@@ -100,12 +100,7 @@ impl Default for Item {
             id: "0000".to_string(),
             name: "name".to_string(),
             rune: None,
-            gold: Gold {
-                base: 0,
-                total: 0,
-                sell: 0,
-                purchasable: false,
-            },
+            gold: Gold::default(),
             group: None,
             description: "description".to_string(),
             colloq: ";".to_string(),
@@ -116,15 +111,7 @@ impl Default for Item {
             consume_on_full: None,
             from: None,
             into: None,
-            image: Image {
-                full: "".to_string(),
-                sprite: "".to_string(),
-                group: "".to_string(),
-                x: 0,
-                y: 0,
-                w: 0,
-                h: 0,
-            },
+            image: Image::default(),
             special_recipe: None,
             in_store: None,
             hide_from_all: None,
