@@ -5,6 +5,9 @@ struct IdAssociatorTransformer;
 
 impl InitTransformer for IdAssociatorTransformer {
     fn transform(&self, ctx: &mut TransformContext) {
-        ctx.items.iter_mut().for_each(|(id, item)| item.id = id.to_owned());
+        ctx.items
+            .borrow_mut()
+            .iter_mut()
+            .for_each(|(id, item)| item.id = id.to_owned());
     }
 }

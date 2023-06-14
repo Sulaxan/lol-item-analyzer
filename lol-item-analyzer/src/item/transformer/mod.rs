@@ -5,16 +5,18 @@ use mockall::automock;
 use super::Item;
 
 pub mod id_assoc;
+pub mod item_value;
 pub mod masterwork_assoc;
 pub mod masterwork_ident;
+pub mod masterwork_item_value;
 
 pub struct TransformContext {
-    pub items: HashMap<String, Item>,
+    pub items: Rc<RefCell<HashMap<String, Item>>>,
 }
 
 impl TransformContext {
     pub fn new(items: HashMap<String, Item>) -> Self {
-        TransformContext { items }
+        TransformContext { items: Rc::new(RefCell::new(items)) }
     }
 }
 
@@ -53,7 +55,7 @@ impl TransformHandler {
             .iter()
             .for_each(|t| t.borrow_mut().transform(&mut ctx));
 
-        ctx.items
+        ctx.items.take()
     }
 }
 
