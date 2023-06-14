@@ -20,7 +20,6 @@ pub type StatGVTableEntryOverrideFn =
 
 pub struct StatGVTableComputer {
     pub items: Rc<RefCell<HashMap<String, Item>>>,
-    pub table: StatGVTable,
     compute_stats: Vec<String>,
     override_fns: HashMap<String, Rc<StatGVTableEntryOverrideFn>>,
 }
@@ -31,7 +30,6 @@ impl StatGVTableComputer {
     pub fn new(items: Rc<RefCell<HashMap<String, Item>>>, compute_stats: Vec<String>) -> Self {
         Self {
             items,
-            table: StatGVTable::new(),
             compute_stats,
             override_fns: HashMap::new(),
         }
@@ -51,7 +49,9 @@ impl StatGVTableComputer {
         self
     }
 
-    pub fn compute(&mut self) {
+    pub fn compute(&self) -> StatGVTable {
+        let mut table = StatGVTable::new();
+
         for stat in self.compute_stats.iter() {
             let entry = if let Some(override_fn) = self.override_fns.get(stat) {
                 override_fn(self.items.clone())
@@ -59,8 +59,10 @@ impl StatGVTableComputer {
                 self.compute_entry(stat)
             };
 
-            self.table.insert(stat.to_string(), entry);
+            table.insert(stat.to_string(), entry);
         }
+
+        table 
     }
 
     fn compute_entry(&self, stat: &str) -> StatGVTableEntry {
