@@ -41,10 +41,7 @@ impl LolApi {
     /// Obtains all items from the League of Legends CDN. This produces the raw content containing
     /// extra metadata.
     pub async fn get_raw_items(version: &str) -> Result<HashMap<String, Value>, String> {
-        let url = format!(
-            "{}/{}{}",
-            LEAGUE_CDN_URL, version, LEAGUE_CDN_ITEM_ENDPOINT
-        );
+        let url = format!("{}/{}{}", LEAGUE_CDN_URL, version, LEAGUE_CDN_ITEM_ENDPOINT);
 
         let response = reqwest::get(url)
             .await
@@ -57,6 +54,23 @@ impl LolApi {
             .map_err(|e| format!("Error parsing request body: {}", e))?;
 
         Ok(raw_items)
+    }
+
+    /// Obtain the stat ids for items. This is a vector of all modifiable stats by items.
+    pub async fn get_stat_ids(version: &str) -> Result<Vec<String>, String> {
+        let raw_items = LolApi::get_raw_items(version).await?;
+
+        let stats: HashMap<String, f64> = serde_json::from_value(
+            raw_items
+                .get("basic")
+                .ok_or("No \"basic\" in items response")?
+                .get("stats")
+                .ok_or("No \"stats\" in items response")?
+                .to_owned(),
+        )
+        .map_err(|e| format!("Could not parse stats: {}", e))?;
+
+        Ok(Vec::from_iter(stats.into_keys()))
     }
 
     /// Obtains all items from the League of Legends CDN. Returned result is a map of item IDs
