@@ -9,6 +9,8 @@ const LEAGUE_CDN_URL: &str = "http://ddragon.leagueoflegends.com/cdn";
 const LEAGUE_API_VERSIONS_ENDPOINT: &str = "/versions.json";
 const LEAGUE_CDN_ITEM_ENDPOINT: &str = "/data/en_US/item.json";
 const ITEMS_DATA_KEY: &str = "data";
+const ITEMS_BASIC_KEY: &str = "basic";
+const ITEMS_STATS_KEY: &str = "stats";
 
 pub struct LolApi;
 
@@ -62,9 +64,9 @@ impl LolApi {
 
         let stats: HashMap<String, f64> = serde_json::from_value(
             raw_items
-                .get("basic")
+                .get(ITEMS_BASIC_KEY)
                 .ok_or("No \"basic\" in items response")?
-                .get("stats")
+                .get(ITEMS_STATS_KEY)
                 .ok_or("No \"stats\" in items response")?
                 .to_owned(),
         )
