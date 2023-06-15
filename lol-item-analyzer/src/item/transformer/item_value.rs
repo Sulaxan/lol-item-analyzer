@@ -5,17 +5,17 @@ use crate::item::compute::{item_gv_calculator::ItemGVCalculator, stat_gv::StatGV
 use super::{TransformContext, Transformer};
 
 /// Gives items a gold value.
-pub struct ItemValue {
+pub struct ItemValueTransformer {
     compute_stats: Vec<String>,
 }
 
-impl ItemValue {
+impl ItemValueTransformer {
     pub fn new(compute_stats: Vec<String>) -> Self {
-        ItemValue { compute_stats }
+        ItemValueTransformer { compute_stats }
     }
 }
 
-impl Transformer for ItemValue {
+impl Transformer for ItemValueTransformer {
     fn transform(&self, ctx: &mut TransformContext) {
         let table_computer = StatGVTableComputer::new(ctx.items.clone(), self.compute_stats.clone());
         let table = table_computer.compute();
