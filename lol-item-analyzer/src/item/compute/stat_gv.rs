@@ -36,15 +36,15 @@ impl StatGVTableComputer {
     }
 
     pub fn add_override_fn(
-        &mut self,
+        mut self,
         stat: &str,
         override_fn: Rc<StatGVTableEntryOverrideFn>,
-    ) -> &mut Self {
+    ) -> Self {
         self.override_fns.insert(stat.to_string(), override_fn);
         self
     }
 
-    pub fn add_compute_stat(&mut self, stat: &str) -> &mut Self {
+    pub fn add_compute_stat(mut self, stat: &str) -> Self {
         self.compute_stats.push(stat.to_owned());
         self
     }

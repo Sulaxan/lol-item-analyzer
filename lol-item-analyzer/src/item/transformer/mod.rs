@@ -1,5 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
+#[cfg(test)]
 use mockall::automock;
 
 use super::Item;
@@ -60,12 +61,12 @@ impl TransformHandler {
 }
 
 /// Perform initial transformation on all items.
-#[automock]
+#[cfg_attr(test, automock)]
 pub trait InitTransformer {
     fn transform(&self, ctx: &mut TransformContext);
 }
 
-#[automock]
+#[cfg_attr(test, automock)]
 pub trait Transformer {
     /// Transforms a given item into the new item.
     fn transform(&self, ctx: &mut TransformContext);
