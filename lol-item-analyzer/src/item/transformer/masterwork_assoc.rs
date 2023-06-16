@@ -38,3 +38,55 @@ impl Transformer for MasterworkAssociatorTransformer {
             });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use crate::item::Item;
+
+    use super::*;
+
+    #[test]
+    fn transform_works() {
+        let mock_base_item_id = "base";
+        let mock_masterwork_id = "masterwork";
+
+        let mock_items = HashMap::from([
+            (mock_base_item_id.to_string(), Item::default()),
+            (mock_masterwork_id.to_string(), {
+                let mut item = Item::default();
+                item.from = Some(vec![mock_base_item_id.to_string()]);
+                item.is_masterwork = true;
+                item
+            }),
+        ]);
+        let mut mock_context = TransformContext::new(mock_items);
+
+        let transformer = MasterworkAssociatorTransformer;
+        transformer.transform(&mut mock_context);
+
+        assert_eq!(
+            mock_context
+                .items
+                .borrow()
+                .get(mock_base_item_id)
+                .unwrap()
+                .masterwork_into
+                .as_ref()
+                .unwrap(),
+            mock_masterwork_id
+        );
+        assert_eq!(
+            mock_context
+                .items
+                .borrow()
+                .get(mock_masterwork_id)
+                .unwrap()
+                .masterwork_from
+                .as_ref()
+                .unwrap(),
+            mock_base_item_id
+        );
+    }
+}
