@@ -78,20 +78,11 @@ impl StatGVTableComputer {
 
         self.items.borrow().iter().for_each(|(id, item)| {
             if let Some(value) = item.stats.get(stat) {
-                // we use the base gold value (which is the cost of the item itself, excluding
-                // the price of previously purchased parts) as it should lead to more accurate
-                // computations for a stat
-                // e.g.,
-                // some item alpha is built using item beta
-                // => item alpha = 550g, item beta = 250g
-                // => item beta gets 400 HP, while item alpha gets 400 HP + 15% move speed
-                // => using base value of item alpha (300g, the craft cost), allows us to compute
-                // the value of 1% move speed given that 300g = 15% move speed
-                //
-                // * note: there may be some inaccuracies with this, but this way of computing stat
-                // gold value should work for most stats
-                //
-                // NOTE: TEMPORARILY CHANGED TO USE TOTAL GOLD
+                // Base value isn't used since it only takes into account the final additional cost
+                // of crafting the item after the player has all the components. Using the base
+                // value is a bit misleading since it can inflate the cost of most stats. For some
+                // stats, it may make sense using the base value since that stat is only available
+                // in the final component (should override the stat calculation in this case).
                 if item.gold.purchasable
                     && (lowest_value_item == None
                         || item.gold.total < lowest_value_item.as_ref().unwrap().1)
