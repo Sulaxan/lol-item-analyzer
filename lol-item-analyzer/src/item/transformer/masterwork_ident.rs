@@ -1,7 +1,7 @@
 use super::{TransformContext, Transformer};
 
 /// Identifies masterwork items.
-struct MasterworkIdentifierTransformer;
+pub struct MasterworkIdentifierTransformer;
 
 impl Transformer for MasterworkIdentifierTransformer {
     fn transform(&self, ctx: &mut TransformContext) {

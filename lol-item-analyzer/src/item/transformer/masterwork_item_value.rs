@@ -3,7 +3,7 @@ use super::{TransformContext, Transformer};
 /// Computes the given value of masterwork items.
 /// ItemValueTransformer and MasterworkAssociatorTransformer must be run before this transformer 
 /// is run.
-struct MasterworkItemValueTransformer;
+pub struct MasterworkItemValueTransformer;
 
 impl Transformer for MasterworkItemValueTransformer {
     fn transform(&self, ctx: &mut TransformContext) {

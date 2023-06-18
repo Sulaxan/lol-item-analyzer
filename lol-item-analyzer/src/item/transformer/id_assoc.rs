@@ -1,7 +1,7 @@
 use super::{InitTransformer, TransformContext};
 
 /// Gives all items an ID based on the ID of the key for each value in the map.
-struct IdAssociatorTransformer;
+pub struct IdAssociatorTransformer;
 
 impl InitTransformer for IdAssociatorTransformer {
     fn transform(&self, ctx: &mut TransformContext) {

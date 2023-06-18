@@ -1,7 +1,10 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
+use serde::{Deserialize, Serialize};
+
 use crate::item::Item;
 
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct StatGVTableEntry {
     /// The amount of gold a singular stat is worth.
     pub unit_value: f64,
@@ -62,13 +65,16 @@ impl StatGVTableComputer {
             table.insert(stat.to_string(), entry);
         }
 
-        table 
+        table
     }
 
     fn compute_entry(&self, stat: &str) -> StatGVTableEntry {
-        let mut lowest_value_item_id = "".to_owned(); // the lowest value item id containing the stat
-        let mut lowest_value_item_cost = 0; // the cost of the above
-        let mut lowest_value_item_modifier = 0f64; // the value of the stat the above item gives
+        // the lowest value item id containing the stat
+        // tuple of (id, cost, modifier), where:
+        // - id is the item id
+        // - cost is the item cost
+        // - modifier is the value of the stat the item gives
+        let mut lowest_value_item: Option<(String, u32, f64)> = None;
 
         self.items.borrow().iter().for_each(|(id, item)| {
             if let Some(value) = item.stats.get(stat) {
@@ -84,25 +90,28 @@ impl StatGVTableComputer {
                 //
                 // * note: there may be some inaccuracies with this, but this way of computing stat
                 // gold value should work for most stats
-                if item.gold.purchasable && item.gold.base < lowest_value_item_cost {
-                    lowest_value_item_id = id.to_owned();
-                    lowest_value_item_cost = item.gold.base;
-                    lowest_value_item_modifier = value.to_owned();
+                //
+                // NOTE: TEMPORARILY CHANGED TO USE TOTAL GOLD
+                if item.gold.purchasable
+                    && (lowest_value_item == None
+                        || item.gold.total < lowest_value_item.as_ref().unwrap().1)
+                {
+                    lowest_value_item = Some((id.to_owned(), item.gold.total, value.to_owned()));
                 }
             }
         });
 
-        if lowest_value_item_cost == 0 {
+        if let Some((id, cost, modifier)) = lowest_value_item {
+            StatGVTableEntry {
+                unit_value: (cost as f64) / modifier,
+                computed_from_item_id: id,
+                notes: Vec::new(),
+            }
+        } else {
             StatGVTableEntry {
                 unit_value: 0f64,
                 computed_from_item_id: "n/a".to_owned(),
                 notes: vec!["Could not associate stat to any item".to_string()],
-            }
-        } else {
-            StatGVTableEntry {
-                unit_value: lowest_value_item_modifier / (lowest_value_item_cost as f64),
-                computed_from_item_id: lowest_value_item_id.to_owned(),
-                notes: Vec::new(),
             }
         }
     }

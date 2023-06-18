@@ -2,7 +2,7 @@ use super::{TransformContext, Transformer};
 
 /// Associates masterwork items to the base mythic item.
 /// MasterworkIdentifierTransformer must be run before this transformer.
-struct MasterworkAssociatorTransformer;
+pub struct MasterworkAssociatorTransformer;
 
 impl Transformer for MasterworkAssociatorTransformer {
     fn transform(&self, ctx: &mut TransformContext) {
