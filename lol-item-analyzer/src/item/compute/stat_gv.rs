@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use serde::{Deserialize, Serialize};
 
-use crate::item::{Item, stat::Stat};
+use crate::item::{stat::Stat, Item};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct StatGVTableEntry {
@@ -30,7 +30,10 @@ pub struct StatGVTableGenerator {
 impl StatGVTableGenerator {
     /// Creates a new stat gold value table generator with the given items and a vector of the
     /// stats to compute.
-    pub fn new(items: Rc<RefCell<HashMap<String, Item>>>, compute_stats: Rc<RefCell<HashMap<String, Stat>>>) -> Self {
+    pub fn new(
+        items: Rc<RefCell<HashMap<String, Item>>>,
+        compute_stats: Rc<RefCell<HashMap<String, Stat>>>,
+    ) -> Self {
         Self {
             items,
             compute_stats,
@@ -47,7 +50,7 @@ impl StatGVTableGenerator {
         self
     }
 
-    pub fn compute(&self) -> StatGVTable {
+    pub fn generate(&self) -> StatGVTable {
         let mut table = StatGVTable::new();
 
         for (id, stat) in self.compute_stats.borrow().iter() {
@@ -89,6 +92,8 @@ impl StatGVTableGenerator {
         });
 
         if let Some((id, cost, modifier)) = lowest_value_item {
+            let modifier = modifier * if stat.is_percent { 100f64 } else { 1f64 };
+
             StatGVTableEntry {
                 unit_value: (cost as f64) / modifier,
                 computed_from_item_id: id,

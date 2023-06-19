@@ -6,7 +6,15 @@ use item::{
     Item,
 };
 
-use crate::item::{stat::transformer::percent_transformer::StatPercentTransformer, transformer::{id_assoc::IdAssociatorTransformer, masterwork_ident::MasterworkIdentifierTransformer, masterwork_assoc::MasterworkAssociatorTransformer, item_value::ItemValueTransformer, masterwork_item_value::MasterworkItemValueTransformer}, compute::stat_gv::StatGVTableGenerator};
+use crate::item::{
+    stat::transformer::percent_transformer::StatPercentTransformer,
+    transformer::{
+        id_assoc::IdAssociatorTransformer, item_value::ItemValueTransformer,
+        masterwork_assoc::MasterworkAssociatorTransformer,
+        masterwork_ident::MasterworkIdentifierTransformer,
+        masterwork_item_value::MasterworkItemValueTransformer,
+    },
+};
 
 pub mod data;
 pub mod item;
@@ -44,14 +52,18 @@ impl ItemAnalyzer {
     }
 
     pub fn default_transformers(stat_analyzer: &StatAnalyzer) -> Vec<Rc<RefCell<dyn Transformer>>> {
-        // let table_generator = StatGVTableGenerator::new();
-        // vec![
-        //     Rc::new(RefCell::new(IdAssociatorTransformer)),
-        //     Rc::new(RefCell::new(MasterworkIdentifierTransformer)),
-        //     Rc::new(RefCell::new(MasterworkAssociatorTransformer)),
-        //     Rc::new(RefCell::new(ItemValueTransformer::new(stats))),
-        //     Rc::new(RefCell::new(MasterworkItemValueTransformer)),
-        // ]
-        todo!();
+        let stats = Rc::new(RefCell::new(
+            stat_analyzer.transform_handler.transform_all(),
+        ));
+
+        let transformers: Vec<Rc<RefCell<dyn Transformer>>> = vec![
+            Rc::new(RefCell::new(IdAssociatorTransformer)),
+            Rc::new(RefCell::new(MasterworkIdentifierTransformer)),
+            Rc::new(RefCell::new(MasterworkAssociatorTransformer)),
+            Rc::new(RefCell::new(ItemValueTransformer::new(stats))),
+            Rc::new(RefCell::new(MasterworkItemValueTransformer)),
+        ];
+
+        transformers
     }
 }

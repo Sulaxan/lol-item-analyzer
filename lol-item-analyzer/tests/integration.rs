@@ -22,7 +22,7 @@ async fn generate_gv_table() {
     let stats = LolApi::get_stat_ids(&latest_version).await.unwrap();
 
     let table_computer = StatGVTableGenerator::new(items.clone(), stats);
-    let table = table_computer.compute();
+    let table = table_computer.generate();
 
     println!("{:#?}", table);
 }
