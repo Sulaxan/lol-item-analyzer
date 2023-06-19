@@ -1,25 +1,23 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::item::compute::{item_gv_calculator::ItemGVCalculator, stat_gv::StatGVTableComputer};
+use crate::item::compute::{item_gv_calculator::ItemGVCalculator, stat_gv::StatGVTable};
 
 use super::{TransformContext, Transformer};
 
 /// Gives items a gold value.
 pub struct ItemValueTransformer {
-    compute_stats: Vec<String>,
+    stat_gv_table: Rc<RefCell<StatGVTable>>,
 }
 
 impl ItemValueTransformer {
-    pub fn new(compute_stats: Vec<String>) -> Self {
-        ItemValueTransformer { compute_stats }
+    pub fn new(stat_gv_table: Rc<RefCell<StatGVTable>>) -> Self {
+        ItemValueTransformer { stat_gv_table }
     }
 }
 
 impl Transformer for ItemValueTransformer {
     fn transform(&self, ctx: &mut TransformContext) {
-        let table_computer = StatGVTableComputer::new(ctx.items.clone(), self.compute_stats.clone());
-        let table = table_computer.compute();
-        let gv_calc = ItemGVCalculator::new(Rc::new(RefCell::new(table)));
+        let gv_calc = ItemGVCalculator::new(self.stat_gv_table.clone());
 
         ctx.items.borrow_mut().iter_mut().for_each(|(_id, item)| {
             let value = gv_calc.get_value(item);

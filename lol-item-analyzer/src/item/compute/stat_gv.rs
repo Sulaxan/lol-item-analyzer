@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use serde::{Deserialize, Serialize};
 
-use crate::item::Item;
+use crate::item::{Item, stat::Stat};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct StatGVTableEntry {
@@ -21,16 +21,16 @@ pub type StatGVTable = HashMap<String, StatGVTableEntry>;
 pub type StatGVTableEntryOverrideFn =
     dyn Fn(Rc<RefCell<HashMap<String, Item>>>) -> StatGVTableEntry;
 
-pub struct StatGVTableComputer {
+pub struct StatGVTableGenerator {
     pub items: Rc<RefCell<HashMap<String, Item>>>,
-    compute_stats: Vec<String>,
+    compute_stats: Rc<RefCell<HashMap<String, Stat>>>,
     override_fns: HashMap<String, Rc<StatGVTableEntryOverrideFn>>,
 }
 
-impl StatGVTableComputer {
-    /// Creates a new stat gold value table computer with the given items and a vector of the stat
-    /// names to compute.
-    pub fn new(items: Rc<RefCell<HashMap<String, Item>>>, compute_stats: Vec<String>) -> Self {
+impl StatGVTableGenerator {
+    /// Creates a new stat gold value table generator with the given items and a vector of the
+    /// stats to compute.
+    pub fn new(items: Rc<RefCell<HashMap<String, Item>>>, compute_stats: Rc<RefCell<HashMap<String, Stat>>>) -> Self {
         Self {
             items,
             compute_stats,
@@ -47,28 +47,23 @@ impl StatGVTableComputer {
         self
     }
 
-    pub fn add_compute_stat(mut self, stat: &str) -> Self {
-        self.compute_stats.push(stat.to_owned());
-        self
-    }
-
     pub fn compute(&self) -> StatGVTable {
         let mut table = StatGVTable::new();
 
-        for stat in self.compute_stats.iter() {
-            let entry = if let Some(override_fn) = self.override_fns.get(stat) {
+        for (id, stat) in self.compute_stats.borrow().iter() {
+            let entry = if let Some(override_fn) = self.override_fns.get(id) {
                 override_fn(self.items.clone())
             } else {
                 self.compute_entry(stat)
             };
 
-            table.insert(stat.to_string(), entry);
+            table.insert(id.to_owned(), entry);
         }
 
         table
     }
 
-    fn compute_entry(&self, stat: &str) -> StatGVTableEntry {
+    fn compute_entry(&self, stat: &Stat) -> StatGVTableEntry {
         // the lowest value item id containing the stat
         // tuple of (id, cost, modifier), where:
         // - id is the item id
@@ -77,7 +72,7 @@ impl StatGVTableComputer {
         let mut lowest_value_item: Option<(String, u32, f64)> = None;
 
         self.items.borrow().iter().for_each(|(id, item)| {
-            if let Some(value) = item.stats.get(stat) {
+            if let Some(value) = item.stats.get(&stat.id) {
                 // Base value isn't used since it only takes into account the final additional cost
                 // of crafting the item after the player has all the components. Using the base
                 // value is a bit misleading since it can inflate the cost of most stats. For some

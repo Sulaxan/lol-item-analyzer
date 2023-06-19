@@ -1,9 +1,9 @@
-use super::{InitTransformer, TransformContext};
+use super::{TransformContext, Transformer};
 
 /// Gives all items an ID based on the ID of the key for each value in the map.
 pub struct IdAssociatorTransformer;
 
-impl InitTransformer for IdAssociatorTransformer {
+impl Transformer for IdAssociatorTransformer {
     fn transform(&self, ctx: &mut TransformContext) {
         ctx.items
             .borrow_mut()

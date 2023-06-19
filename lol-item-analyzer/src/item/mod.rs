@@ -2,8 +2,9 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-pub mod transformer;
 pub mod compute;
+pub mod stat;
+pub mod transformer;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Rune {

@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use lol_item_analyzer::{
     data::lol_api::LolApi,
     item::{
-        compute::stat_gv::StatGVTableComputer,
+        compute::stat_gv::StatGVTableGenerator,
         transformer::{
             id_assoc::IdAssociatorTransformer, item_value::ItemValueTransformer,
             masterwork_assoc::MasterworkAssociatorTransformer,
@@ -21,7 +21,7 @@ async fn generate_gv_table() {
     ));
     let stats = LolApi::get_stat_ids(&latest_version).await.unwrap();
 
-    let table_computer = StatGVTableComputer::new(items.clone(), stats);
+    let table_computer = StatGVTableGenerator::new(items.clone(), stats);
     let table = table_computer.compute();
 
     println!("{:#?}", table);
@@ -36,8 +36,8 @@ async fn everything_works() {
 
     let transformer = TransformHandler::new(
         items,
-        vec![Rc::new(RefCell::new(IdAssociatorTransformer))],
         vec![
+            Rc::new(RefCell::new(IdAssociatorTransformer)),
             Rc::new(RefCell::new(MasterworkIdentifierTransformer)),
             Rc::new(RefCell::new(MasterworkAssociatorTransformer)),
             Rc::new(RefCell::new(ItemValueTransformer::new(stats))),
