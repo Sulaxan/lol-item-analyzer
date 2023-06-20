@@ -1,10 +1,12 @@
-use super::{TransformContext, Transformer};
+use crate::data::transform::Transformer;
+
+use super::ItemTransformContext;
 
 /// Gives all items an ID based on the ID of the key for each value in the map.
 pub struct IdAssociatorTransformer;
 
-impl Transformer for IdAssociatorTransformer {
-    fn transform(&self, ctx: &mut TransformContext) {
+impl Transformer<ItemTransformContext> for IdAssociatorTransformer {
+    fn transform(&self, ctx: &mut ItemTransformContext) {
         ctx.items
             .borrow_mut()
             .iter_mut()
@@ -28,7 +30,7 @@ mod tests {
             (mock_item_id.to_string(), Item::default()),
             (mock_item_id_2.to_string(), Item::default()),
         ]);
-        let mut mock_context = TransformContext::new(mock_items);
+        let mut mock_context = ItemTransformContext::new(mock_items);
 
         let transformer = IdAssociatorTransformer;
         transformer.transform(&mut mock_context);

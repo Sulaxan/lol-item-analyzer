@@ -1,12 +1,14 @@
-use super::{TransformContext, Transformer};
+use crate::data::transform::Transformer;
+
+use super::ItemTransformContext;
 
 /// Computes the given value of masterwork items.
-/// ItemValueTransformer and MasterworkAssociatorTransformer must be run before this transformer 
+/// ItemValueTransformer and MasterworkAssociatorTransformer must be run before this transformer
 /// is run.
 pub struct MasterworkItemValueTransformer;
 
-impl Transformer for MasterworkItemValueTransformer {
-    fn transform(&self, ctx: &mut TransformContext) {
+impl Transformer<ItemTransformContext> for MasterworkItemValueTransformer {
+    fn transform(&self, ctx: &mut ItemTransformContext) {
         // the gold value of masterwork items
         // vector of (id, gold_value)
         let mut masterwork_values: Vec<(String, f64)> = Vec::new();

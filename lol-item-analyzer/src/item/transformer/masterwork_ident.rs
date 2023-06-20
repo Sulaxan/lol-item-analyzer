@@ -1,10 +1,12 @@
-use super::{TransformContext, Transformer};
+use crate::data::transform::Transformer;
+
+use super::ItemTransformContext;
 
 /// Identifies masterwork items.
 pub struct MasterworkIdentifierTransformer;
 
-impl Transformer for MasterworkIdentifierTransformer {
-    fn transform(&self, ctx: &mut TransformContext) {
+impl Transformer<ItemTransformContext> for MasterworkIdentifierTransformer {
+    fn transform(&self, ctx: &mut ItemTransformContext) {
         ctx.items.borrow_mut().iter_mut().for_each(|(_id, item)| {
             let is_masterwork =
                 item.required_ally.is_some() && item.required_ally.as_ref().unwrap() == "Ornn";
@@ -30,7 +32,7 @@ mod tests {
             item.required_ally = Some("Ornn".to_string());
             item
         })]);
-        let mut mock_context = TransformContext::new(mock_items);
+        let mut mock_context = ItemTransformContext::new(mock_items);
 
         transformer.transform(&mut mock_context);
 

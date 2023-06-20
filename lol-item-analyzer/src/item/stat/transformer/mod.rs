@@ -1,5 +1,7 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
+use crate::data::transform::Transformer;
+
 use super::Stat;
 
 pub mod percent_transformer;
@@ -16,18 +18,14 @@ impl StatTransformContext {
     }
 }
 
-pub trait StatTransformer {
-    fn transform(&self, ctx: &mut StatTransformContext);
-}
-
 #[derive(Clone)]
 pub struct StatTransformHandler {
     pub stats: Vec<String>,
-    pub transformers: Vec<Rc<RefCell<dyn StatTransformer>>>,
+    pub transformers: Vec<Rc<RefCell<dyn Transformer<StatTransformContext>>>>,
 }
 
 impl StatTransformHandler {
-    pub fn new(stats: Vec<String>, transformers: Vec<Rc<RefCell<dyn StatTransformer>>>) -> Self {
+    pub fn new(stats: Vec<String>, transformers: Vec<Rc<RefCell<dyn Transformer<StatTransformContext>>>>) -> Self {
         Self {
             stats,
             transformers,

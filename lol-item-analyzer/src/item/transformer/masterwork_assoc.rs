@@ -1,11 +1,13 @@
-use super::{TransformContext, Transformer};
+use crate::data::transform::Transformer;
+
+use super::ItemTransformContext;
 
 /// Associates masterwork items to the base mythic item.
 /// MasterworkIdentifierTransformer must be run before this transformer.
 pub struct MasterworkAssociatorTransformer;
 
-impl Transformer for MasterworkAssociatorTransformer {
-    fn transform(&self, ctx: &mut TransformContext) {
+impl Transformer<ItemTransformContext> for MasterworkAssociatorTransformer {
+    fn transform(&self, ctx: &mut ItemTransformContext) {
         // (mythic_id, masterwork_id)
         // this vector exists for the sole purpose of mapping the regular mythic items to
         // masterwork items. we, unfortunately, can't do this at the same time as the original
@@ -61,7 +63,7 @@ mod tests {
                 item
             }),
         ]);
-        let mut mock_context = TransformContext::new(mock_items);
+        let mut mock_context = ItemTransformContext::new(mock_items);
 
         let transformer = MasterworkAssociatorTransformer;
         transformer.transform(&mut mock_context);

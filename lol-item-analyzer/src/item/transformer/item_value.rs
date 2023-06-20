@@ -1,11 +1,14 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::item::{
-    compute::{item_gv_calculator::ItemGVCalculator, stat_gv::StatGVTableGenerator},
-    stat::Stat,
+use crate::{
+    data::transform::Transformer,
+    item::{
+        compute::{item_gv_calculator::ItemGVCalculator, stat_gv::StatGVTableGenerator},
+        stat::Stat,
+    },
 };
 
-use super::{TransformContext, Transformer};
+use super::ItemTransformContext;
 
 /// Gives items a gold value.
 pub struct ItemValueTransformer {
@@ -18,8 +21,8 @@ impl ItemValueTransformer {
     }
 }
 
-impl Transformer for ItemValueTransformer {
-    fn transform(&self, ctx: &mut TransformContext) {
+impl Transformer<ItemTransformContext> for ItemValueTransformer {
+    fn transform(&self, ctx: &mut ItemTransformContext) {
         let table_generator = StatGVTableGenerator::new(ctx.items.clone(), self.stats.clone());
         let gv_table = table_generator.generate();
         let gv_calc = ItemGVCalculator::new(Rc::new(RefCell::new(gv_table)));

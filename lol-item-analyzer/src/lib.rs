@@ -1,8 +1,9 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
+use data::transform::Transformer;
 use item::{
-    stat::transformer::{StatTransformHandler, StatTransformer},
-    transformer::{TransformHandler, Transformer},
+    stat::transformer::{StatTransformContext, StatTransformHandler},
+    transformer::{ItemTransformContext, TransformHandler},
     Item,
 };
 
@@ -25,13 +26,16 @@ pub struct StatAnalyzer {
 }
 
 impl StatAnalyzer {
-    pub fn new(stats: Vec<String>, transformers: Vec<Rc<RefCell<dyn StatTransformer>>>) -> Self {
+    pub fn new(
+        stats: Vec<String>,
+        transformers: Vec<Rc<RefCell<dyn Transformer<StatTransformContext>>>>,
+    ) -> Self {
         Self {
             transform_handler: StatTransformHandler::new(stats, transformers),
         }
     }
 
-    pub fn default_transformers() -> Vec<Rc<RefCell<dyn StatTransformer>>> {
+    pub fn default_transformers() -> Vec<Rc<RefCell<dyn Transformer<StatTransformContext>>>> {
         vec![Rc::new(RefCell::new(StatPercentTransformer))]
     }
 }
@@ -44,19 +48,21 @@ pub struct ItemAnalyzer {
 impl ItemAnalyzer {
     pub fn new(
         items: HashMap<String, Item>,
-        transformers: Vec<Rc<RefCell<dyn Transformer>>>,
+        transformers: Vec<Rc<RefCell<dyn Transformer<ItemTransformContext>>>>,
     ) -> Self {
         Self {
             transform_handler: TransformHandler::new(items, transformers),
         }
     }
 
-    pub fn default_transformers(stat_analyzer: &StatAnalyzer) -> Vec<Rc<RefCell<dyn Transformer>>> {
+    pub fn default_transformers(
+        stat_analyzer: &StatAnalyzer,
+    ) -> Vec<Rc<RefCell<dyn Transformer<ItemTransformContext>>>> {
         let stats = Rc::new(RefCell::new(
             stat_analyzer.transform_handler.transform_all(),
         ));
 
-        let transformers: Vec<Rc<RefCell<dyn Transformer>>> = vec![
+        let transformers: Vec<Rc<RefCell<dyn Transformer<ItemTransformContext>>>> = vec![
             Rc::new(RefCell::new(IdAssociatorTransformer)),
             Rc::new(RefCell::new(MasterworkIdentifierTransformer)),
             Rc::new(RefCell::new(MasterworkAssociatorTransformer)),
