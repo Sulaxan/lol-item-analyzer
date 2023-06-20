@@ -5,9 +5,11 @@ use serde_json::Value;
 use crate::item::Item;
 
 const LEAGUE_API_URL: &str = "https://ddragon.leagueoflegends.com/api";
-const LEAGUE_CDN_URL: &str = "http://ddragon.leagueoflegends.com/cdn";
 const LEAGUE_API_VERSIONS_ENDPOINT: &str = "/versions.json";
+
+const LEAGUE_CDN_URL: &str = "http://ddragon.leagueoflegends.com/cdn";
 const LEAGUE_CDN_ITEM_ENDPOINT: &str = "/data/en_US/item.json";
+
 const ITEMS_DATA_KEY: &str = "data";
 const ITEMS_BASIC_KEY: &str = "basic";
 const ITEMS_STATS_KEY: &str = "stats";
