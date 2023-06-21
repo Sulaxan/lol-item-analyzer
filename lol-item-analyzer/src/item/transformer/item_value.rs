@@ -3,7 +3,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 use crate::{
     data::transform::Transformer,
     item::{
-        compute::{item_gv_calculator::ItemGVCalculator, stat_gv::StatGVTableGenerator},
+        gv::{item::ItemGVCalculator, stat::StatGVTableGenerator},
         stat::Stat,
     },
 };

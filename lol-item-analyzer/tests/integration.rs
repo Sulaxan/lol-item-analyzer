@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use lol_item_analyzer::{
     data::lol_api::LolApi,
     item::{
-        compute::stat_gv::StatGVTableGenerator,
+        gv::stat::StatGVTableGenerator,
         transformer::{
             id_assoc::IdAssociatorTransformer, item_value::ItemValueTransformer,
             masterwork_assoc::MasterworkAssociatorTransformer,

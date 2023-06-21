@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::item::Item;
 
-use super::stat_gv::StatGVTable;
+use super::stat::StatGVTable;
 
 pub enum ItemGVTaskResult {
     /// The stat and the computed value for the stat
