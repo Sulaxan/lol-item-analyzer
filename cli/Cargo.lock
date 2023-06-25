@@ -134,6 +134,7 @@ dependencies = [
  "anstyle",
  "bitflags",
  "clap_lex",
+ "once_cell",
  "strsim",
 ]
 
@@ -154,16 +155,6 @@ name = "clap_lex"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2da6da31387c7e4ef160ffab6d5e7f00c42626fe39aea70a7b0f1773f7dd6c1b"
-
-[[package]]
-name = "cli"
-version = "0.1.0"
-dependencies = [
- "clap",
- "lol-item-analyzer",
- "serde",
- "serde_json",
-]
 
 [[package]]
 name = "colorchoice"
@@ -612,6 +603,16 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+]
+
+[[package]]
+name = "loliac"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "lol-item-analyzer",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

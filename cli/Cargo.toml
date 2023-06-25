@@ -1,12 +1,13 @@
 [package]
-name = "cli"
+name = "loliac"
 version = "0.1.0"
 edition = "2021"
+description = "League of Legends Item Analyzer CLI"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.3.5", features = ["derive"] }
+clap = { version = "4.3.5", features = ["derive", "cargo"] }
 lol-item-analyzer = { path = "../lol-item-analyzer" }
 serde = { version = "1.0.164", features = ["derive"] }
 serde_json = "1.0.97"

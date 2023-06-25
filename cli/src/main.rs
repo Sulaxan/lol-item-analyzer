@@ -1,6 +1,12 @@
+use clap::Parser;
+use cli::Loliac;
+
+mod cli;
 mod config;
 mod file;
 
 fn main() {
-    println!("Hello, world!");
+    let loliac = Loliac::parse();
+
+    println!("Got {:#?}", loliac);
 }
