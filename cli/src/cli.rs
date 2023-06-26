@@ -17,4 +17,6 @@ pub struct Loliac {
 pub enum LoliacCommand {
     /// Get an item by item name
     Get { item_name: String },
+    GetId { item_id: String },
+    Search { text: String }
 }

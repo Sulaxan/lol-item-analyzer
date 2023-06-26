@@ -32,4 +32,4 @@ Get an item by item id.
 ---
 `*Future Feature*`
 
-Does a full text search for the given ] text.
+Does a full text search for the given text.
