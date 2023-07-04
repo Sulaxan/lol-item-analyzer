@@ -11,7 +11,7 @@ Core functionality is in a usable state, however, the library currently does not
 
 ## Examples
 
-Formal examples still need to be structured, but basic usage is covered in the [integration
+Formal examples still need to be created, but basic usage is covered in the [integration
 test](./tests/integration.rs).
 
 ## Running Tests
