@@ -7,7 +7,12 @@ library is in the form of a pipeline.
 
 Core functionality is in a usable state, however, the library currently does not provide the following:
 - Caching (either when fetching items or caching the analyzed/transformed items on disk)
-- No way to easily add commonly used transformers (future functionality)
+- Attaching custom data to items
+
+## Examples
+
+Formal examples still need to be structured, but basic usage is covered in the [integration
+test](./tests/integration.rs).
 
 ## Running Tests
 
